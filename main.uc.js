@@ -19,6 +19,7 @@
   const LAYOUT_VERSION = 2;
   const LAYOUT_VERSION_PREF = `${PREF_BRANCH}layoutVersion`;
   const PAGE_MEMORY_REFRESH_MS = 30_000;
+  const HIDE_SHORTCUT_PREF = `${PREF_BRANCH}hide.shortcut-key`;
   const WIDGET_IDS = [
     "domain",
     "clock",
@@ -456,6 +457,7 @@
         POMODORO_PREFS.remainingSeconds,
         DEFAULT_PREFS.pomodoro.remainingSeconds,
       );
+      this.setDefaultPref(HIDE_SHORTCUT_PREF, "Alt+W");
     }
 
     applyLayoutMigration() {
@@ -1432,53 +1434,38 @@
   additional code for shortcuts
 */
 
-  let shortcuts = {
-    "hide.shortcut-key": {
-      default: "ALT+W",
-      input: getPref(`${PREF_BRANCH}hide.shortcut-key`, "ALT+W"),
-      map: {
-        code: undefined,
-        altKey: false,
-        shiftKey: false,
-        ctrlKey: false,
-        valid: true,
-      },
-      func: () => {
-        controller.toggleVisibility();
-      },
+  const hideShortcut = {
+    default: "Alt+W",
+    input: getPref(HIDE_SHORTCUT_PREF, "Alt+W"),
+    map: {
+      code: undefined,
+      altKey: false,
+      shiftKey: false,
+      ctrlKey: false,
+      valid: true,
     },
   };
 
-  function loadShortCuts() {
-    Object.values(shortcuts).forEach((st) => {
-      st.map.code = undefined;
-      st.map.altKey = false;
-      st.map.shiftKey = false;
-      st.map.ctrlKey = false;
-      st.map.valid = true;
+  function loadShortcut() {
+    hideShortcut.map.code = undefined;
+    hideShortcut.map.altKey = false;
+    hideShortcut.map.shiftKey = false;
+    hideShortcut.map.ctrlKey = false;
+    hideShortcut.map.valid = true;
 
-      let funcs = {
-        ctrl: (_) => {
-          st["map"]["ctrlKey"] = true;
-        },
-        shift: (_) => {
-          st["map"]["shiftKey"] = true;
-        },
-        alt: (_) => {
-          st["map"]["altKey"] = true;
-        },
-      };
-
-      st.input.split("+").forEach((x) => {
-        x = x.toLowerCase();
-        if (funcs[x]) {
-          funcs[x]();
-        } else if (x.length == 1 && !st?.["map"]?.["code"]) {
-          st["map"]["code"] = x;
-        } else {
-          st["map"]["valid"] = false;
-        }
-      });
+    hideShortcut.input.split("+").forEach((part) => {
+      const token = part.trim().toLowerCase();
+      if (token === "alt") {
+        hideShortcut.map.altKey = true;
+      } else if (token === "shift") {
+        hideShortcut.map.shiftKey = true;
+      } else if (token === "ctrl" || token === "control") {
+        hideShortcut.map.ctrlKey = true;
+      } else if (token.length === 1 && !hideShortcut.map.code) {
+        hideShortcut.map.code = token;
+      } else {
+        hideShortcut.map.valid = false;
+      }
     });
   }
 
@@ -1508,28 +1495,29 @@
     }
   }
 
-  loadShortCuts();
+  loadShortcut();
 
-  Object.keys(shortcuts).forEach(key => {
-    addPrefListener(`${PREF_BRANCH}${key}`, _ => {
-      shortcuts[key].input = getPref(`${PREF_BRANCH}${key}`, shortcuts[key].default);
-      loadShortCuts();
-    });
+  addPrefListener(HIDE_SHORTCUT_PREF, () => {
+    hideShortcut.input = getPref(HIDE_SHORTCUT_PREF, hideShortcut.default);
+    loadShortcut();
   });
 
+  window.addEventListener("keyup", (event) => {
+    if (!event.altKey && !event.shiftKey && !event.ctrlKey) return;
 
-  addEventListener("keyup", ({ key, code, altKey, shiftKey, ctrlKey }) => {
-    if (!altKey && !shiftKey && !ctrlKey) return;
+    const map = hideShortcut.map;
+    if (!map.valid) return;
 
-    code = code.replace("Key", "").toLowerCase();
-    Object.values(shortcuts).forEach(({ map, func }) => {
-      if (!map.valid) return;
-      if (map.code != code) return;
-      if (map.altKey != altKey) return;
-      if (map.shiftKey != shiftKey) return;
-      if (map.ctrlKey != ctrlKey) return;
+    const keyCode = event.code
+      ? event.code.replace(/^Key/, "").replace(/^Digit/, "").toLowerCase()
+      : event.key.toLowerCase();
 
-      func();
-    });
+    if (map.code !== keyCode) return;
+    if (map.altKey !== event.altKey) return;
+    if (map.shiftKey !== event.shiftKey) return;
+    if (map.ctrlKey !== event.ctrlKey) return;
+
+    event.preventDefault();
+    controller.toggleVisibility();
   });
 })();

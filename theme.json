@@ -1,6 +1,6 @@
 {
   "id": "zen-widget-statusbar",
-  "name": "Widget Statusbar forked",
+  "name": "Widget Statusbar",
   "description": "A configurable widget-based status bar for Zen, with a customizable keyboard shortcut to hide the widgets.",
   "author": "un-2known",
   "version": "1.1.0",
@@ -15,7 +15,7 @@
   },
   "scripts": {
     "main.uc.js": {
-      "name": "Widget Statusbar forked",
+      "name": "Widget Statusbar",
       "description": "Injects the configurable widget status bar and hide-shortcut handler into Zen.",
       "include": ["chrome://browser/content/browser.xhtml"],
       "loadOrder": 10
