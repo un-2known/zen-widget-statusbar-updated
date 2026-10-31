@@ -20,6 +20,7 @@
   const LAYOUT_VERSION_PREF = `${PREF_BRANCH}layoutVersion`;
   const PAGE_MEMORY_REFRESH_MS = 30_000;
   const HIDE_SHORTCUT_PREF = `${PREF_BRANCH}hide.shortcut-key`;
+  let hideShortcutKeyupListener = null;
   const WIDGET_IDS = [
     "domain",
     "clock",
@@ -257,6 +258,10 @@
 
       this.window.removeEventListener("unload", this.boundCleanup);
       this.window.removeEventListener("beforeunload", this.boundCleanup);
+      if (hideShortcutKeyupListener) {
+        this.window.removeEventListener("keyup", hideShortcutKeyupListener);
+        hideShortcutKeyupListener = null;
+      }
 
       const mainWindow = this.document.getElementById(MAIN_WINDOW_ID);
       if (mainWindow) {
@@ -697,12 +702,22 @@
     }
 
     toggleVisibility() {
-      const mainWindow = this.document.getElementById(MAIN_WINDOW_ID);
-      if (!mainWindow) {
+      const mainWindow =
+        this.document.getElementById(MAIN_WINDOW_ID) ||
+        this.document.documentElement;
+      if (!mainWindow?.classList) {
+        shortcutLog("Cannot toggle visibility: no main window element found");
         return;
       }
 
-      const hidden = mainWindow.classList.toggle(HIDDEN_CLASS);
+      const hidden = !mainWindow.classList.contains(HIDDEN_CLASS);
+      mainWindow.classList.toggle(HIDDEN_CLASS, hidden);
+      shortcutLog(
+        `Visibility class state: ${hidden ? "hidden" : "shown"}`,
+        `Target: ${mainWindow.id || mainWindow.tagName}`,
+        `Class before: ${hidden ? "absent" : "present"}`,
+        `Class after: ${mainWindow.className}`,
+      );
       if (this.root) {
         if (hidden) {
           this.root.setAttribute("aria-hidden", "true");
@@ -1512,7 +1527,7 @@
     loadShortcut();
   });
 
-  window.addEventListener("keyup", (event) => {
+  hideShortcutKeyupListener = (event) => {
     if (!event.altKey && !event.shiftKey && !event.ctrlKey) return;
 
     const map = hideShortcut.map;
@@ -1540,8 +1555,9 @@
     shortcutLog("Shortcut matched; toggling widget visibility");
     event.preventDefault();
     const hidden = controller.toggleVisibility();
-    shortcutLog(hidden ? "Widgets hidden" : "Widgets shown");
-  });
+    shortcutLog(hidden === true ? "Widgets hidden" : hidden === false ? "Widgets shown" : "Widgets visibility unchanged");
+  };
 
+  window.addEventListener("keyup", hideShortcutKeyupListener);
   shortcutLog("Keyup listener registered");
 })();
