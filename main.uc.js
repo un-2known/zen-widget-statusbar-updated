@@ -1434,6 +1434,8 @@
   additional code for shortcuts
 */
 
+  const shortcutLog = (...args) => console.log("[WidgetStatusbar:Shortcut]", ...args);
+
   const hideShortcut = {
     default: "Alt+W",
     input: getPref(HIDE_SHORTCUT_PREF, "Alt+W"),
@@ -1467,6 +1469,11 @@
         hideShortcut.map.valid = false;
       }
     });
+
+    shortcutLog(
+      `Loaded shortcut "${hideShortcut.input}":`,
+      { ...hideShortcut.map },
+    );
   }
 
   function addPrefListener(name, callback) {
@@ -1497,8 +1504,11 @@
 
   loadShortcut();
 
+  shortcutLog(`Preference: ${HIDE_SHORTCUT_PREF}`, `Initial value: "${hideShortcut.input}"`);
+
   addPrefListener(HIDE_SHORTCUT_PREF, () => {
     hideShortcut.input = getPref(HIDE_SHORTCUT_PREF, hideShortcut.default);
+    shortcutLog(`Preference changed: "${hideShortcut.input}"`);
     loadShortcut();
   });
 
@@ -1506,18 +1516,32 @@
     if (!event.altKey && !event.shiftKey && !event.ctrlKey) return;
 
     const map = hideShortcut.map;
-    if (!map.valid) return;
+    if (!map.valid) {
+      shortcutLog("Ignored keyup because the configured shortcut is invalid");
+      return;
+    }
 
     const keyCode = event.code
       ? event.code.replace(/^Key/, "").replace(/^Digit/, "").toLowerCase()
       : event.key.toLowerCase();
+
+    shortcutLog("Keyup received:", {
+      key: keyCode,
+      altKey: event.altKey,
+      shiftKey: event.shiftKey,
+      ctrlKey: event.ctrlKey,
+    });
 
     if (map.code !== keyCode) return;
     if (map.altKey !== event.altKey) return;
     if (map.shiftKey !== event.shiftKey) return;
     if (map.ctrlKey !== event.ctrlKey) return;
 
+    shortcutLog("Shortcut matched; toggling widget visibility");
     event.preventDefault();
-    controller.toggleVisibility();
+    const hidden = controller.toggleVisibility();
+    shortcutLog(hidden ? "Widgets hidden" : "Widgets shown");
   });
+
+  shortcutLog("Keyup listener registered");
 })();
