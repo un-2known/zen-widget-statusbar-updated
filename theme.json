@@ -1,22 +1,22 @@
 {
-  "id": "zen-developer-statusbar",
-  "name": "Widget Statusbar",
-  "description": "Adds a configurable widget-based bottom status bar for Zen.",
-  "author": "danperks",
-  "version": "1.0.0",
+  "id": "zen-widget-statusbar",
+  "name": "Widget Statusbar forked",
+  "description": "A configurable widget-based status bar for Zen, with a customizable keyboard shortcut to hide the widgets.",
+  "author": "un-2known",
+  "version": "1.1.0",
   "createdAt": "2026-04-11",
-  "updatedAt": "2026-04-13",
-  "homepage": "https://github.com/danperks/zen-widget-statusbar",
-  "readme": "https://raw.githubusercontent.com/danperks/zen-widget-statusbar/main/README.md",
+  "updatedAt": "2026-10-31",
+  "homepage": "https://github.com/un-2known/zen-widget-statusbar",
+  "readme": "https://raw.githubusercontent.com/un-2known/zen-widget-statusbar/main/README.md",
   "fork": ["zen"],
-  "ai": "yes",
+  "ai": "no",
   "style": {
     "chrome": "chrome.css"
   },
   "scripts": {
     "main.uc.js": {
-      "name": "Widget Statusbar",
-      "description": "Injects the configurable widget bottom bar into Zen.",
+      "name": "Widget Statusbar forked",
+      "description": "Injects the configurable widget status bar and hide-shortcut handler into Zen.",
       "include": ["chrome://browser/content/browser.xhtml"],
       "loadOrder": 10
     }

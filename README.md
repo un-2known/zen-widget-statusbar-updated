@@ -2,6 +2,8 @@
 
 `Widget Statusbar` is a configurable bottom widget bar built for Zen Browser.
 
+This project is a fork of [danperks/zen-widget-statusbar](https://github.com/danperks/zen-widget-statusbar) maintained by [un-2known](https://github.com/un-2known). It adds a configurable keyboard shortcut for hiding the widgets.
+
 ![Widget Statusbar screenshot](./media/widget-statusbar.png)
 
 It adds a lightweight statusbar-style strip to the bottom of the browser UI with configurable widgets for:
@@ -15,6 +17,10 @@ It adds a lightweight statusbar-style strip to the bottom of the browser UI with
 - battery
 - pomodoro timer
 
+## Hide Shortcut
+
+The widgets can be hidden with the default `Alt+W` shortcut. The shortcut can be changed in the Widget Statusbar preferences under **Hide Shortcut**.
+
 ## Requirements
 
 - Zen Browser
@@ -23,7 +29,7 @@ It adds a lightweight statusbar-style strip to the bottom of the browser UI with
 ## Install
 
 1. Open Sine in Zen.
-2. Add the repo `danperks/zen-widget-statusbar`.
+2. Add the forked repo `un-2known/zen-widget-statusbar`.
 3. Enable the mod.
 
 ## Note About JavaScript Mods

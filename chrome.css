@@ -37,6 +37,11 @@
 
 #main-window.zen-developer-statusbar-active #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer {
   bottom: var(--zen-dev-status-reserve) !important;
+  transition: bottom 180ms ease;
+}
+
+#main-window.widget-statusbar-hidden #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer {
+  bottom: 0 !important;
 }
 
 #main-window[inFullscreen].zen-developer-statusbar-active #tabbrowser-tabbox #tabbrowser-tabpanels .browserSidebarContainer,
@@ -55,10 +60,13 @@
   grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   align-items: center;
   column-gap: 14px;
-  min-height: var(--zen-dev-status-height);
+  height: var(--zen-dev-status-height);
+  min-height: 0;
   padding: 0 12px 1px;
   overflow: hidden;
   box-sizing: border-box;
+  opacity: 1;
+  transition: height 180ms ease, padding 180ms ease, opacity 180ms ease;
   pointer-events: none;
   background: transparent;
   color: var(--zen-dev-status-fg);
@@ -71,6 +79,15 @@
 
 #zen-developer-statusbar-root[hidden] {
   display: none !important;
+}
+
+#main-window.widget-statusbar-hidden #zen-developer-statusbar-root {
+  height: 0;
+  min-height: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  opacity: 0;
+  pointer-events: none;
 }
 
 #main-window[inFullscreen] #zen-developer-statusbar-root,

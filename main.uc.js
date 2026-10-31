@@ -11,6 +11,7 @@
   const MAIN_WINDOW_ID = "main-window";
   const MOUNT_SELECTOR = "#zen-tabbox-wrapper";
   const ACTIVE_CLASS = "zen-developer-statusbar-active";
+  const HIDDEN_CLASS = "widget-statusbar-hidden";
   const PREF_BRANCH = "zen.widgetStatusbar.";
   const LEGACY_PREF_BRANCH = "zen.developerStatusBar.";
   const CONTROLLER_KEY = "__zenWidgetStatusbarController";
@@ -223,22 +224,24 @@
       } catch {}
 
       if (this.window.gBrowser?.tabContainer) {
-        this.tabEventNames.forEach(eventName => {
+        this.tabEventNames.forEach((eventName) => {
           this.window.gBrowser.tabContainer.removeEventListener(
             eventName,
-            this.boundTabEvent
+            this.boundTabEvent,
           );
         });
       }
 
       if (this.window.gBrowser?.removeTabsProgressListener) {
         try {
-          this.window.gBrowser.removeTabsProgressListener(this.progressListener);
+          this.window.gBrowser.removeTabsProgressListener(
+            this.progressListener,
+          );
         } catch {}
       }
 
       if (this.batteryInfo && this.batteryListener) {
-        ["chargingchange", "levelchange"].forEach(eventName => {
+        ["chargingchange", "levelchange"].forEach((eventName) => {
           this.batteryInfo.removeEventListener(eventName, this.batteryListener);
         });
       }
@@ -257,6 +260,7 @@
       const mainWindow = this.document.getElementById(MAIN_WINDOW_ID);
       if (mainWindow) {
         mainWindow.classList.remove(ACTIVE_CLASS);
+        mainWindow.classList.remove(HIDDEN_CLASS);
       }
 
       if (this.root?.isConnected) {
@@ -293,10 +297,10 @@
         return;
       }
 
-      this.tabEventNames.forEach(eventName => {
+      this.tabEventNames.forEach((eventName) => {
         this.window.gBrowser.tabContainer.addEventListener(
           eventName,
-          this.boundTabEvent
+          this.boundTabEvent,
         );
       });
     }
@@ -325,12 +329,7 @@
 
         this.ensureMounted();
         this.advancePomodoroIfNeeded();
-        this.refreshVisibleWidgets([
-          "clock",
-          "date",
-          "timeOnPage",
-          "pomodoro",
-        ]);
+        this.refreshVisibleWidgets(["clock", "date", "timeOnPage", "pomodoro"]);
 
         this.memoryPulse += 1;
         if (this.memoryPulse % 5 === 0) {
@@ -377,13 +376,13 @@
         ...Object.values(POMODORO_PREFS),
       ];
 
-      WIDGET_IDS.forEach(widgetId => {
+      WIDGET_IDS.forEach((widgetId) => {
         prefNames.push(getWidgetPrefPath(widgetId, "enabled"));
         prefNames.push(getWidgetPrefPath(widgetId, "side"));
         prefNames.push(getWidgetPrefPath(widgetId, "order"));
       });
 
-      prefNames.forEach(prefName => this.migrateLegacyPref(prefName));
+      prefNames.forEach((prefName) => this.migrateLegacyPref(prefName));
     }
 
     migrateLegacyPref(prefName) {
@@ -407,46 +406,55 @@
     }
 
     ensureDefaultPrefs() {
-      WIDGET_IDS.forEach(widgetId => {
+      WIDGET_IDS.forEach((widgetId) => {
         const defaults = DEFAULT_PREFS.widgets[widgetId];
-        this.setDefaultPref(getWidgetPrefPath(widgetId, "enabled"), defaults.enabled);
+        this.setDefaultPref(
+          getWidgetPrefPath(widgetId, "enabled"),
+          defaults.enabled,
+        );
         this.setDefaultPref(getWidgetPrefPath(widgetId, "side"), defaults.side);
-        this.setDefaultPref(getWidgetPrefPath(widgetId, "order"), defaults.order);
+        this.setDefaultPref(
+          getWidgetPrefPath(widgetId, "order"),
+          defaults.order,
+        );
       });
 
       this.setDefaultPref(
         `${PREF_BRANCH}clock.format`,
-        DEFAULT_PREFS.clockFormat
+        DEFAULT_PREFS.clockFormat,
       );
-      this.setDefaultPref(`${PREF_BRANCH}date.format`, DEFAULT_PREFS.dateFormat);
+      this.setDefaultPref(
+        `${PREF_BRANCH}date.format`,
+        DEFAULT_PREFS.dateFormat,
+      );
       this.setDefaultPref(
         POMODORO_PREFS.workMinutes,
-        DEFAULT_PREFS.pomodoro.workMinutes
+        DEFAULT_PREFS.pomodoro.workMinutes,
       );
       this.setDefaultPref(
         POMODORO_PREFS.breakMinutes,
-        DEFAULT_PREFS.pomodoro.breakMinutes
+        DEFAULT_PREFS.pomodoro.breakMinutes,
       );
       this.setDefaultPref(
         POMODORO_PREFS.autoStartBreak,
-        DEFAULT_PREFS.pomodoro.autoStartBreak
+        DEFAULT_PREFS.pomodoro.autoStartBreak,
       );
       this.setDefaultPref(
         POMODORO_PREFS.autoStartWork,
-        DEFAULT_PREFS.pomodoro.autoStartWork
+        DEFAULT_PREFS.pomodoro.autoStartWork,
       );
       this.setDefaultPref(POMODORO_PREFS.phase, DEFAULT_PREFS.pomodoro.phase);
       this.setDefaultPref(
         POMODORO_PREFS.running,
-        DEFAULT_PREFS.pomodoro.running
+        DEFAULT_PREFS.pomodoro.running,
       );
       this.setDefaultPref(
         POMODORO_PREFS.endsAtSeconds,
-        DEFAULT_PREFS.pomodoro.endsAtSeconds
+        DEFAULT_PREFS.pomodoro.endsAtSeconds,
       );
       this.setDefaultPref(
         POMODORO_PREFS.remainingSeconds,
-        DEFAULT_PREFS.pomodoro.remainingSeconds
+        DEFAULT_PREFS.pomodoro.remainingSeconds,
       );
     }
 
@@ -512,14 +520,14 @@
     getWidgetConfig(widgetId) {
       const defaults = DEFAULT_PREFS.widgets[widgetId];
       const enabled = Boolean(
-        this.readPref(getWidgetPrefPath(widgetId, "enabled"), defaults.enabled)
+        this.readPref(getWidgetPrefPath(widgetId, "enabled"), defaults.enabled),
       );
       const sidePref = this.readPref(
         getWidgetPrefPath(widgetId, "side"),
-        defaults.side
+        defaults.side,
       );
       const orderPref = Number(
-        this.readPref(getWidgetPrefPath(widgetId, "order"), defaults.order)
+        this.readPref(getWidgetPrefPath(widgetId, "order"), defaults.order),
       );
 
       return {
@@ -535,13 +543,13 @@
       const phase = this.readPref(POMODORO_PREFS.phase, "work");
       const running = Boolean(this.readPref(POMODORO_PREFS.running, false));
       const endsAtSeconds = Number(
-        this.readPref(POMODORO_PREFS.endsAtSeconds, 0)
+        this.readPref(POMODORO_PREFS.endsAtSeconds, 0),
       );
       const storedRemaining = Number(
         this.readPref(
           POMODORO_PREFS.remainingSeconds,
-          DEFAULT_PREFS.pomodoro.remainingSeconds
-        )
+          DEFAULT_PREFS.pomodoro.remainingSeconds,
+        ),
       );
       const now = this.nowSeconds();
       const remainingSeconds = running
@@ -562,7 +570,10 @@
       this.writePref(POMODORO_PREFS.phase, nextState.phase);
       this.writePref(POMODORO_PREFS.running, nextState.running);
       this.writePref(POMODORO_PREFS.endsAtSeconds, nextState.endsAtSeconds);
-      this.writePref(POMODORO_PREFS.remainingSeconds, nextState.remainingSeconds);
+      this.writePref(
+        POMODORO_PREFS.remainingSeconds,
+        nextState.remainingSeconds,
+      );
     }
 
     nowSeconds() {
@@ -579,7 +590,8 @@
           ? DEFAULT_PREFS.pomodoro.breakMinutes
           : DEFAULT_PREFS.pomodoro.workMinutes;
       const minutes = Number(this.readPref(prefName, fallback));
-      const safeMinutes = Number.isFinite(minutes) && minutes > 0 ? minutes : fallback;
+      const safeMinutes =
+        Number.isFinite(minutes) && minutes > 0 ? minutes : fallback;
       return safeMinutes * 60;
     }
 
@@ -662,6 +674,10 @@
       this.root.id = BAR_ID;
       this.root.setAttribute("role", "toolbar");
       this.root.setAttribute("aria-label", "Widget Statusbar");
+      const mainWindow = this.document.getElementById(MAIN_WINDOW_ID);
+      if (mainWindow?.classList.contains(HIDDEN_CLASS)) {
+        this.root.setAttribute("aria-hidden", "true");
+      }
 
       this.leftGroup = this.document.createElement("div");
       this.leftGroup.className = "zen-developer-statusbar-group is-left";
@@ -676,6 +692,23 @@
       mountPoint.appendChild(this.root);
       this.widgetsBuilt = false;
       return true;
+    }
+
+    toggleVisibility() {
+      const mainWindow = this.document.getElementById(MAIN_WINDOW_ID);
+      if (!mainWindow) {
+        return;
+      }
+
+      const hidden = mainWindow.classList.toggle(HIDDEN_CLASS);
+      if (this.root) {
+        if (hidden) {
+          this.root.setAttribute("aria-hidden", "true");
+        } else {
+          this.root.removeAttribute("aria-hidden");
+        }
+      }
+      return hidden;
     }
 
     rebuildWidgets() {
@@ -707,7 +740,7 @@
         });
       });
 
-      ["left", "center", "right"].forEach(side => {
+      ["left", "center", "right"].forEach((side) => {
         orderedWidgets[side]
           .sort((a, b) => a.order - b.order || a.index - b.index)
           .forEach(({ widgetId }) => {
@@ -791,7 +824,7 @@
       const primary = this.document.createElement("button");
       primary.type = "button";
       primary.className = "zen-developer-statusbar-button";
-      primary.addEventListener("click", event => {
+      primary.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
         this.togglePomodoro();
@@ -802,7 +835,7 @@
       reset.className =
         "zen-developer-statusbar-button zen-developer-statusbar-button-reset";
       reset.textContent = "Reset";
-      reset.addEventListener("click", event => {
+      reset.addEventListener("click", (event) => {
         event.preventDefault();
         event.stopPropagation();
         this.resetPomodoro("work");
@@ -830,7 +863,7 @@
         return;
       }
 
-      widgetIds.forEach(widgetId => {
+      widgetIds.forEach((widgetId) => {
         const widget = this.widgetElements.get(widgetId);
         if (!widget) {
           return;
@@ -846,7 +879,7 @@
           this.setWidgetValue(
             widget,
             this.formatSelectedBrowserLabel(),
-            this.getSelectedBrowser()?.currentURI?.spec || ""
+            this.getSelectedBrowser()?.currentURI?.spec || "",
           );
           break;
         case "clock":
@@ -891,7 +924,7 @@
       const valueNode = this.getCachedWidgetNode(
         widget,
         "_zenValueNode",
-        ".zen-developer-statusbar-widget-value"
+        ".zen-developer-statusbar-widget-value",
       );
       if (!valueNode) {
         return;
@@ -915,17 +948,17 @@
       const phaseNode = this.getCachedWidgetNode(
         widget,
         "_zenPhaseNode",
-        ".zen-developer-statusbar-widget-phase"
+        ".zen-developer-statusbar-widget-phase",
       );
       const valueNode = this.getCachedWidgetNode(
         widget,
         "_zenValueNode",
-        ".zen-developer-statusbar-widget-value"
+        ".zen-developer-statusbar-widget-value",
       );
       const primaryButton = this.getCachedWidgetNode(
         widget,
         "_zenPrimaryButton",
-        ".zen-developer-statusbar-button"
+        ".zen-developer-statusbar-button",
       );
 
       if (!phaseNode || !valueNode || !primaryButton) {
@@ -937,7 +970,9 @@
         phaseNode.textContent = phaseText;
       }
 
-      const durationText = this.formatDuration(snapshot.remainingSeconds * 1000);
+      const durationText = this.formatDuration(
+        snapshot.remainingSeconds * 1000,
+      );
       if (valueNode.textContent !== durationText) {
         valueNode.textContent = durationText;
       }
@@ -958,7 +993,7 @@
         return;
       }
 
-      Array.from(this.window.gBrowser.tabs).forEach(tab => {
+      Array.from(this.window.gBrowser.tabs).forEach((tab) => {
         if (tab?.linkedBrowser) {
           this.pageSessions.set(tab.linkedBrowser, {
             spec: tab.linkedBrowser.currentURI?.spec || "",
@@ -1030,7 +1065,7 @@
         }
         this.clockFormatters.set(
           format,
-          new Intl.DateTimeFormat(undefined, options)
+          new Intl.DateTimeFormat(undefined, options),
         );
       }
 
@@ -1040,7 +1075,7 @@
     formatClock() {
       const format = this.readPref(
         `${PREF_BRANCH}clock.format`,
-        DEFAULT_PREFS.clockFormat
+        DEFAULT_PREFS.clockFormat,
       );
       return this.getClockFormatter(format).format(Date.now());
     }
@@ -1058,7 +1093,7 @@
         }
         this.dateFormatters.set(
           format,
-          new Intl.DateTimeFormat(undefined, options)
+          new Intl.DateTimeFormat(undefined, options),
         );
       }
 
@@ -1068,7 +1103,7 @@
     formatDate() {
       const format = this.readPref(
         `${PREF_BRANCH}date.format`,
-        DEFAULT_PREFS.dateFormat
+        DEFAULT_PREFS.dateFormat,
       );
       return this.getDateFormatter(format).format(Date.now());
     }
@@ -1115,7 +1150,7 @@
     getMemoryManager() {
       try {
         return Cc["@mozilla.org/memory-reporter-manager;1"].getService(
-          Ci.nsIMemoryReporterManager
+          Ci.nsIMemoryReporterManager,
         );
       } catch {
         return null;
@@ -1179,8 +1214,8 @@
 
     getSelectedOuterWindowId() {
       return (
-        this.getSelectedBrowser()?.browsingContext?.currentWindowGlobal?.outerWindowId ||
-        null
+        this.getSelectedBrowser()?.browsingContext?.currentWindowGlobal
+          ?.outerWindowId || null
       );
     }
 
@@ -1198,14 +1233,10 @@
       const now = Date.now();
       const shouldCollect =
         forceCollection ||
-        (
-          allowCollection &&
-          (
-            !this.pageMemoryLastCollectedAt ||
+        (allowCollection &&
+          (!this.pageMemoryLastCollectedAt ||
             this.pageMemoryLastWindowId !== outerWindowId ||
-            now - this.pageMemoryLastCollectedAt >= PAGE_MEMORY_REFRESH_MS
-          )
-        );
+            now - this.pageMemoryLastCollectedAt >= PAGE_MEMORY_REFRESH_MS));
 
       if (!shouldCollect) {
         return;
@@ -1248,7 +1279,10 @@
         this.pageMemoryLastWindowId = outerWindowId;
       } catch (error) {
         log("Could not collect page memory:", error);
-        if (!this.destroyed && this.getSelectedOuterWindowId() === outerWindowId) {
+        if (
+          !this.destroyed &&
+          this.getSelectedOuterWindowId() === outerWindowId
+        ) {
           this.memorySnapshot.pageMemory = null;
         }
       } finally {
@@ -1273,7 +1307,7 @@
         return Promise.resolve(null);
       }
 
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         let total = 0;
         let matches = 0;
 
@@ -1304,7 +1338,7 @@
             null,
             () => resolve(matches > 0 ? total : null),
             null,
-            false
+            false,
           );
         } catch (error) {
           log("getReports failed for page memory:", error);
@@ -1352,7 +1386,7 @@
             this.refreshVisibleWidgets(["battery"]);
           }
         };
-        ["chargingchange", "levelchange"].forEach(eventName => {
+        ["chargingchange", "levelchange"].forEach((eventName) => {
           this.batteryInfo.addEventListener(eventName, this.batteryListener);
         });
       } catch (error) {
@@ -1393,4 +1427,109 @@
   window[CONTROLLER_KEY] = controller;
   window[LEGACY_CONTROLLER_KEY] = controller;
   controller.init();
+
+  /*
+  additional code for shortcuts
+*/
+
+  let shortcuts = {
+    "hide.shortcut-key": {
+      default: "ALT+W",
+      input: getPref(`${PREF_BRANCH}hide.shortcut-key`, "ALT+W"),
+      map: {
+        code: undefined,
+        altKey: false,
+        shiftKey: false,
+        ctrlKey: false,
+        valid: true,
+      },
+      func: () => {
+        controller.toggleVisibility();
+      },
+    },
+  };
+
+  function loadShortCuts() {
+    Object.values(shortcuts).forEach((st) => {
+      st.map.code = undefined;
+      st.map.altKey = false;
+      st.map.shiftKey = false;
+      st.map.ctrlKey = false;
+      st.map.valid = true;
+
+      let funcs = {
+        ctrl: (_) => {
+          st["map"]["ctrlKey"] = true;
+        },
+        shift: (_) => {
+          st["map"]["shiftKey"] = true;
+        },
+        alt: (_) => {
+          st["map"]["altKey"] = true;
+        },
+      };
+
+      st.input.split("+").forEach((x) => {
+        x = x.toLowerCase();
+        if (funcs[x]) {
+          funcs[x]();
+        } else if (x.length == 1 && !st?.["map"]?.["code"]) {
+          st["map"]["code"] = x;
+        } else {
+          st["map"]["valid"] = false;
+        }
+      });
+    });
+  }
+
+  function addPrefListener(name, callback) {
+    let modified_callback = () => {
+      callback({ value: getPref(name) });
+    };
+    return (
+      Services.prefs.addObserver(name, modified_callback),
+      { name, observer: modified_callback, callback }
+    );
+  }
+
+  function getPref(key, defaultValue) {
+    try {
+      let prefService = Services.prefs,
+        type = prefService.getPrefType(key);
+      if (type === prefService.PREF_STRING)
+        return prefService.getStringPref(key);
+      else if (type === prefService.PREF_INT)
+        return prefService.getIntPref(key);
+      else if (type === prefService.PREF_BOOL)
+        return prefService.getBoolPref(key);
+      return defaultValue;
+    } catch {
+      return defaultValue;
+    }
+  }
+
+  loadShortCuts();
+
+  Object.keys(shortcuts).forEach(key => {
+    addPrefListener(`${PREF_BRANCH}${key}`, _ => {
+      shortcuts[key].input = getPref(`${PREF_BRANCH}${key}`, shortcuts[key].default);
+      loadShortCuts();
+    });
+  });
+
+
+  addEventListener("keyup", ({ key, code, altKey, shiftKey, ctrlKey }) => {
+    if (!altKey && !shiftKey && !ctrlKey) return;
+
+    code = code.replace("Key", "").toLowerCase();
+    Object.values(shortcuts).forEach(({ map, func }) => {
+      if (!map.valid) return;
+      if (map.code != code) return;
+      if (map.altKey != altKey) return;
+      if (map.shiftKey != shiftKey) return;
+      if (map.ctrlKey != ctrlKey) return;
+
+      func();
+    });
+  });
 })();

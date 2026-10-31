@@ -1,7 +1,7 @@
 [
   {
     "type": "text",
-    "label": "Widget Statusbar",
+    "label": "Widget Statusbar forked",
     "margin": "20px 0 8px 0",
     "size": "20px"
   },
@@ -318,5 +318,11 @@
     "property": "zen.widgetStatusbar.pomodoro.autoStartWork",
     "label": "Auto-start work sessions after breaks",
     "margin": "12px 0"
+  },
+  {
+    "type": "string",
+    "property": "zen.widgetStatusbar.hide.shortcut-key",
+    "label": "Hide Shortcut",
+    "defaultValue": "Alt+W"
   }
 ]
